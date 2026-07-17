@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: careerforge-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 1440
+      - key: DATABASE_URL
+        value: sqlite:////data/careerforge.db
+      - key: UPLOAD_DIR
+        value: /data/uploads
+      - key: LOG_DIR
+        value: /data/logs
+      - key: ANALYZER_BACKEND
+        value: groq
+      - key: GROQ_API_KEY
+        sync: false          # You'll paste this in the Render dashboard
+      - key: GROQ_MODEL
+        value: mixtral-8x7b-32768
+      - key: CORS_ORIGINS
+        sync: false          # You'll paste your Vercel URL here after deploying
+    disk:
+      name: careerforge-data
+      mountPath: /data
+      sizeGB: 1              # $1/month — keeps DB, uploads & logs persistent

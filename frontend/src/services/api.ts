@@ -1,8 +1,14 @@
 import axios from 'axios';
 import type { Token, User, JobApplication, ApplicationCreate, DashboardStats, Resume, AnalysisResult } from '../types';
 
+// In dev: Vite proxies /api → localhost:8000
+// In prod: VITE_API_URL points to your Render backend (e.g. https://careerforge-api.onrender.com)
+const BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 

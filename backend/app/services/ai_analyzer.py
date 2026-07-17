@@ -26,7 +26,15 @@ import re
 from typing import Optional
 
 import httpx
-import ollama
+
+# ollama is a local-dev-only dependency — not installed on cloud servers
+# The backend falls back gracefully to Groq/Mistral/heuristic if ollama is absent
+try:
+    import ollama as _ollama_lib
+    _OLLAMA_AVAILABLE = True
+except ImportError:
+    _ollama_lib = None
+    _OLLAMA_AVAILABLE = False
 
 logger = logging.getLogger("careerforge")
 
@@ -90,8 +98,11 @@ def _parse_llm_response(raw: str, word_count: int) -> Optional[dict]:
 # ── Backend 1: Ollama (local) ─────────────────────────────────────────────────
 def _analyze_ollama(text: str, word_count: int) -> Optional[dict]:
     """Run analysis via local Ollama instance."""
+    if not _OLLAMA_AVAILABLE:
+        logger.warning("[ai_analyzer] ollama package not installed — skipping Ollama backend")
+        return None
     try:
-        client = ollama.Client(host=OLLAMA_BASE_URL)
+        client = _ollama_lib.Client(host=OLLAMA_BASE_URL)
         response = client.chat(
             model=OLLAMA_MODEL,
             messages=[
